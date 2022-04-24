@@ -29,7 +29,7 @@ class MainScene extends Phaser.Scene {
     this.shot;
   }
   preload() {
-     this.load.audio('laser', './assets/sfx_laser1.ogg');
+    this.load.audio('laser', './assets/sfx_laser1.ogg');
     this.load.plugin('rexvirtualjoystickplugin', './plugins/rexvirtualjoystickplugin.min.js');
     this.load.image('bgSpace', './assets/deep-space.jpg');
     this.load.image('bullets', './assets/dotRed.png');
@@ -39,7 +39,6 @@ class MainScene extends Phaser.Scene {
     this.load.image('enemy', './assets/spaceShips_005.png');
     this.load.image('effect1', './assets/spaceEffects_008.png');
     this.load.image('effect2', './assets/spaceEffects_010.png');
-    
     this.load.image('base', './assets/stick_bg_line.png');
     this.load.image('thumb', './assets/stick_line.png');
     this.load.image('xKey', './assets/cross.png');
@@ -53,9 +52,9 @@ class MainScene extends Phaser.Scene {
   }
 
   create() {
-     let lsound =  this.sound.add('laser')
+    let lsound = this.sound.add('laser')
     this.input.addPointer(3); //ADD POINTERS TO SUPPORT MULTIPLE INPUT
-    this.input.on('pointerup',()=>{this.scale.lockOrientation('landsae')});
+
     this.backG = this.add.tileSprite(0, 0, 800, 1000, 'bgSpace').setOrigin(0).setScrollFactor(1, 0); //ADD BACKGROUND AS A TILE_SPRITE SET IT'S ORIGIN BOTH X AND Y AT 0 AND ALSO SET THE SCROLL_FACTOR FOR X TO 1 MEANING IT SHOULD SCROLL WHILE Y TO 0 MEANING NOT SCROLL
 
     this.player = this.physics.add.sprite(300, 250, 'p1').setOrigin(0).setScale(.7).setScrollFactor(0); //ADD PLAYER SPRITE TO THE ARCADE PHYSICS AND SET IT'S ORIGIN TO, SIZE 70% OF IT'S SIZE AND SHOULD NOT SCROLL
@@ -75,72 +74,75 @@ class MainScene extends Phaser.Scene {
       loop: true
     });
 
-    this.player.body.setCollideWorldBounds(true);//ENABLE COLLISION OF THE THE PLAYER WITH THE WORLD BOUNDS
+    this.player.body.setCollideWorldBounds(true); //ENABLE COLLISION OF THE THE PLAYER WITH THE WORLD BOUNDS
 
     let joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, { x: 100, y: 300, radius: 60, dir: '4dir', fixed: true, base: this.add.image(200, 200, 'base').setScale(1).setAlpha(ALPHA), thumb: this.add.image(50, 50, 'thumb').setScale(1).setAlpha(ALPHA) });
     var rect = this.add.rectangle(joyStick.x * 7, joyStick.y * .9, 200, 200, 0xff00ff).setAlpha(0);
-    let toggleFs=this.add.image(rect.x+60,20,'fscreen').setScale(1.5).setInteractive();
-    toggleFs.on('pointerup',()=>{
-        if(this.scale.isFullscreen){
-            this.scale.stopFullscreen()
-        }
-      this.scale.startFullscreen()});
-    let posX = [rect.x, rect.x + 50,rect.x-50]
-    let posY = [rect.y - 50, rect.y + 50,rect.y]
+    let toggleFs = this.add.image(rect.x + 60, 20, 'fscreen').setScale(1.5).setInteractive();
+    toggleFs.on('pointerup', () => {
+      if (this.scale.isFullscreen) {
+        this.scale.stopFullscreen()
+      }
+      this.scale.lockOrientation('landscape')
+      this.scale.startFullscreen()
+    });
+    let posX = [rect.x, rect.x + 50, rect.x - 50]
+    let posY = [rect.y - 50, rect.y + 50, rect.y]
     for (let i = 0; i < 2; i++) {
       let x = posX[0];
       let y = posY[i];
-      this.add.image(x, y, 'round').setAlpha(ALPHA).setScale(SCALE_NUM/1.2);
+      this.add.image(x, y, 'round').setAlpha(ALPHA).setScale(SCALE_NUM / 1.2);
     }
     for (let i = 0; i < 2; i++) {
-      let x = posX[i+1];
+      let x = posX[i + 1];
       let y = posY[2];
-      this.add.image(x, y, 'round').setAlpha(ALPHA).setScale(SCALE_NUM/1.2);
+      this.add.image(x, y, 'round').setAlpha(ALPHA).setScale(SCALE_NUM / 1.2);
     }
-    let recta = this.add.image(rect.x/1.65,joyStick.y+50,'recta').setAlpha(ALPHA)
-    let stText = this.add.image(recta.x,recta.y,'start').setAlpha(ALPHA).setInteractive();
-    
+    let recta = this.add.image(rect.x / 1.65, joyStick.y + 50, 'recta').setAlpha(ALPHA)
+    let stText = this.add.image(recta.x, recta.y, 'start').setAlpha(ALPHA).setInteractive();
+
     let ykey = this.add.image(rect.x, rect.y - 54, 'yKey').setScale(SCALE_NUM).setAlpha(ALPHA).setInteractive()
     let xkey = this.add.image(rect.x, rect.y + 50, 'xKey').setScale(SCALE_NUM).setAlpha(ALPHA).setInteractive()
     let bkey = this.add.image(rect.x - 50, rect.y, 'bKey').setScale(SCALE_NUM).setAlpha(ALPHA).setInteractive()
     let akey = this.add.image(rect.x + 50, rect.y, 'aKey').setScale(SCALE_NUM).setAlpha(ALPHA).setInteractive()
-    ykey.on('pointerdown',()=>{
-        ykey.setScale(1.5)
-        // console.log('triangle key pressed')
+    ykey.on('pointerdown', () => {
+      ykey.setScale(1.5)
+      // console.log('triangle key pressed')
     });
-    xkey.on('pointerdown',()=>{
-        xkey.setScale(1.5)
-        // console.log('x key pressed')
+    xkey.on('pointerdown', () => {
+      xkey.setScale(1.5)
+      // console.log('x key pressed')
     });
-    bkey.on('pointerdown',()=>{
-        bkey.setScale(1.5)
-        // console.log('box key pressed')
+    bkey.on('pointerdown', () => {
+      bkey.setScale(1.5)
+      // console.log('box key pressed')
     });
-    akey.on('pointerdown',()=>{
-        akey.setScale(1.5)
-        // console.log('O key pressed')
+    akey.on('pointerdown', () => {
+      akey.setScale(1.5)
+      // console.log('O key pressed')
     });
-ykey.on('pointerup',()=>{
-        ykey.setScale(SCALE_NUM)
-        // console.log('triangle key relea
+    ykey.on('pointerup', () => {
+      ykey.setScale(SCALE_NUM)
+      // console.log('triangle key relea
     });
-    xkey.on('pointerup',()=>{
-        xkey.setScale(SCALE_NUM)
-        // console.log('x key released')
+    xkey.on('pointerup', () => {
+      xkey.setScale(SCALE_NUM)
+      //   // console.log('x key released')
     });
-    bkey.on('pointerup',()=>{
-        bkey.setScale(SCALE_NUM)
-        // console.log('box key released')
+
+    bkey.on('pointerup', () => {
+      bkey.setScale(SCALE_NUM)
+      // console.log('box key released')
     });
-    akey.on('pointerup',()=>{
-        akey.setScale(SCALE_NUM)
-        // console.log('O key released')
+    akey.on('pointerup', () => {
+      akey.setScale(SCALE_NUM)
+      // console.log('O key released')
     });
 
     this.playerBody = this.player.body;
     this.shoot = this.add.image(600, 890, 'bullets').setScale(4).setInteractive();
     this.bullets = this.physics.add.group({});
-    this.input.on('pointerup', () => {
+    xkey.on('pointerup', () => {
       this.sound.play('laser')
       let bullet1 = this.bullets.create(this.player.x + 30, this.player.y + 10, 'missile').setScale(.5);
       let bullet2 = this.bullets.create(this.player.x + 110, this.player.y + 9, 'missile').setScale(.5);
@@ -150,9 +152,11 @@ ykey.on('pointerup',()=>{
       this.children.swap(this.player, bullet2)
       this.shot = true;
     });
+
     this.physics.add.overlap(this.bullets, this.enemyShips, this.destroyShip, null, this);
     this.cursorKeys = joyStick.createCursorKeys();
     this.keyBoard = this.input.keyboard.createCursorKeys()
+    this.children.bringToTop(joyStick)
 
   }
 
@@ -194,7 +198,7 @@ ykey.on('pointerup',()=>{
       });
     }
     this.player.setVelocity(0);
-    if (this.cursorKeys.up.isDown || this.keyBoard.up.isDown){
+    if (this.cursorKeys.up.isDown || this.keyBoard.up.isDown) {
       this.player.setVelocityY(-300);
       // this.player.anims.play('up', true);
     }
@@ -242,8 +246,8 @@ class lostScene extends Phaser.Scene {
 let config = {
   type: Phaser.WEBGL,
   parent: 'spaceWindow',
-  scale:{
-  mode: Phaser.Scale.FIT
+  scale: {
+    mode: Phaser.Scale.FIT
   },
   width: 800,
   height: 450,
