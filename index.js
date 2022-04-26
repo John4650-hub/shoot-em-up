@@ -1,5 +1,6 @@
 const ALPHA = 0.8;
 const SCALE_NUM = 1.05;
+const SCALE_SPRITE = 0.5
 class firstScene extends Phaser.Scene {
   constructor() {
     super({ key: 'firstScene' });
@@ -49,6 +50,7 @@ class MainScene extends Phaser.Scene {
     this.load.image('recta', './assets/rect_line.png');
     this.load.image('start', './assets/start.png');
     this.load.image('fscreen', './assets/fullscreen.png');
+    this.load.spritesheet('rock','./assets/Asteroid-PNG-File.png',{frameWidth:510/6,frameHeight:500/5})
   }
 
   create() {
@@ -57,8 +59,14 @@ class MainScene extends Phaser.Scene {
 
     this.backG = this.add.tileSprite(0, 0, 800, 1000, 'bgSpace').setOrigin(0).setScrollFactor(1, 0); //ADD BACKGROUND AS A TILE_SPRITE SET IT'S ORIGIN BOTH X AND Y AT 0 AND ALSO SET THE SCROLL_FACTOR FOR X TO 1 MEANING IT SHOULD SCROLL WHILE Y TO 0 MEANING NOT SCROLL
 
-    this.player = this.physics.add.sprite(300, 250, 'p1').setOrigin(0).setScale(.7).setScrollFactor(0); //ADD PLAYER SPRITE TO THE ARCADE PHYSICS AND SET IT'S ORIGIN TO, SIZE 70% OF IT'S SIZE AND SHOULD NOT SCROLL
-
+    this.player = this.physics.add.sprite(config.width/2, config.height/2, 'p1').setOrigin(0).setScale(SCALE_SPRITE).setScrollFactor(0); //ADD PLAYER SPRITE TO THE ARCADE PHYSICS AND SET IT'S ORIGIN TO, SIZE 70% OF IT'S SIZE AND SHOULD NOT SCROLL
+     this.anims.create({
+       key: 'roll',
+       frames: this.anims.generateFrameNumbers('rock', { start: 0, end: 29 }),
+       repeat: -1,
+       frameRate: 32
+     })
+     let rck =  this.physics.add.sprite(200,100,'ms1').setScale(.5).play('roll')
     this.enemyShips = this.physics.add.group(); //ADD A GROUP FOR MANAGING ALL THE ENEMY SPACESHIPS
 
     this.physics.add.overlap(this.player, this.enemyShips); //ADD AN OVERLAP TO CALL WHEN ENEMY SPACESHIP PASSES OVER THE PLAYER'S SHIP
@@ -68,7 +76,7 @@ class MainScene extends Phaser.Scene {
       callback: () => {
         let x = Phaser.Math.Between(50, 600);
         let y = Phaser.Math.Between(-200, -100);
-        let enemy = this.enemyShips.create(x, y, 'enemy').setScale(.5).setVelocityY(400);
+        let enemy = this.enemyShips.create(x, y, 'enemy').setScale(SCALE_SPRITE).setVelocityY(400);
       },
       callbackScope: this,
       loop: true
@@ -100,7 +108,6 @@ class MainScene extends Phaser.Scene {
     }
     let recta = this.add.image(rect.x / 1.65, joyStick.y + 50, 'recta').setAlpha(ALPHA)
     let stText = this.add.image(recta.x, recta.y, 'start').setAlpha(ALPHA).setInteractive();
-
     let ykey = this.add.image(rect.x, rect.y - 54, 'yKey').setScale(SCALE_NUM).setAlpha(ALPHA).setInteractive()
     let xkey = this.add.image(rect.x, rect.y + 50, 'xKey').setScale(SCALE_NUM).setAlpha(ALPHA).setInteractive()
     let bkey = this.add.image(rect.x - 50, rect.y, 'bKey').setScale(SCALE_NUM).setAlpha(ALPHA).setInteractive()
@@ -129,7 +136,6 @@ class MainScene extends Phaser.Scene {
       xkey.setScale(SCALE_NUM)
       //   // console.log('x key released')
     });
-
     bkey.on('pointerup', () => {
       bkey.setScale(SCALE_NUM)
       // console.log('box key released')
@@ -139,25 +145,22 @@ class MainScene extends Phaser.Scene {
       // console.log('O key released')
     });
 
-    this.playerBody = this.player.body;
     this.shoot = this.add.image(600, 890, 'bullets').setScale(4).setInteractive();
     this.bullets = this.physics.add.group({});
     xkey.on('pointerup', () => {
       this.sound.play('laser')
       let bullet1 = this.bullets.create(this.player.x + 30, this.player.y + 10, 'missile').setScale(.5);
-      let bullet2 = this.bullets.create(this.player.x + 110, this.player.y + 9, 'missile').setScale(.5);
+      let bullet2 = this.bullets.create(this.player.x + 80, this.player.y + 9, 'missile').setScale(.5);
       bullet1.setVelocityY(-400).body.updateFromGameObject();
       bullet2.setVelocityY(-400).body.updateFromGameObject();
-      this.children.swap(this.player, bullet1)
-      this.children.swap(this.player, bullet2)
+      this.children.swap(bullet1, this.player);
+      this.children.swap(this.player, bullet2);
       this.shot = true;
     });
 
     this.physics.add.overlap(this.bullets, this.enemyShips, this.destroyShip, null, this);
     this.cursorKeys = joyStick.createCursorKeys();
     this.keyBoard = this.input.keyboard.createCursorKeys()
-    this.children.bringToTop(joyStick)
-
   }
 
   destroyShip(bullet, enemyship) {
@@ -176,8 +179,8 @@ class MainScene extends Phaser.Scene {
     }
   }
 
-
   update() {
+    
     this.enemyShips.children.iterate(child => {
       /** @type {Phaser.Physics.Arcade.Sprite} */
       const ship = child
